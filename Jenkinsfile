@@ -1,35 +1,35 @@
 pipeline {
     agent any
+
     stages {
-        stage('Clone Repository') {
+        stage('Clone Repo') {
             steps {
-                git 'https://github.com/https://github.com/teisiadrian/Multi-app'
+                // Clone the repository
+                git 'https://github.com/teisiadrian/Multi-app.git'
             }
         }
-        stage('Build and Deploy App1') {
+        stage('Build and Push Docker Images') {
             steps {
-                dir('app1') {
-                    script {
-                        dockerImageApp1 = docker.build("app1-image")
-                    }
+                script {
+                    // Build Docker images for app1 and app2
+                    sh 'docker-compose build'
                 }
-                sh 'docker-compose up -d app1'
             }
         }
-        stage('Build and Deploy App2') {
+        stage('Deploy Containers') {
             steps {
-                dir('app2') {
-                    script {
-                        dockerImageApp2 = docker.build("app2-image")
-                    }
+                script {
+                    // Deploy the services using docker-compose
+                    sh 'docker-compose up -d'
                 }
-                sh 'docker-compose up -d app2'
             }
         }
-        stage('Deploy Database') {
-            steps {
-                sh 'docker-compose up -d db'
-            }
+    }
+
+    post {
+        always {
+            // Clean up resources after the pipeline finishes
+            sh 'docker-compose down'
         }
     }
 }
